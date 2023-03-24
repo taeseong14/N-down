@@ -17,8 +17,11 @@ result.txt에서 확인하십숑
 자세한건 설명서 ㄱㄱ
 
 
+.exe라서 머시기하면 직접 돌리생요
+
+
 ---
 
 
-If there's any problem while downloading or progressing just add an issue
+If there's any problem while downloading, progressing; Or any additional function you want
 [click here to make new issue](https://github.com/taeseong14/N-down/issues/new)
