@@ -4,7 +4,7 @@
 
 > 사용법
 
- * 1. 릴리즈([v0.0.1](https://github.com/taeseong14/N-down/releases/tag/v0.0.1))를 받는다
+ * 1. 릴리즈([v0.0.2](https://github.com/taeseong14/N-down/releases/tag/v0.0.2))를 받는다
  * 2. 압축을 푼다
  * 3. id(노벨피아, 구글 등 연동 ㄴㄴ) 와 password 입력
  * 4. bookId(소설번호: 178143 등)
