@@ -22,6 +22,6 @@ result.txt에서 확인하십숑
 ---
 
 
-If there's any problem while downloading, progressing; Or any additional function you want
+If there's any problem while downloading, progressing, or any additional function you want
 
 [click here to make new issue](https://github.com/taeseong14/N-down/issues/new)
