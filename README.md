@@ -2,6 +2,14 @@
 
 노벨피아 다운로더
 
+
+> 개발노트
+
+ - 화수 추가중
+ - 설정 추가예정(계정, 삽화 url 유무, 화수(1화, 2화) 유무 등등)
+
+
+
 > 사용법
 
  * 1. 릴리즈([v0.0.3](https://github.com/taeseong14/N-down/releases/tag/v0.0.3))에서 "downloader.zip" 을 받는다
@@ -11,7 +19,7 @@
  * 5. 끝날때까지 기다린다
 
 끝!
-result.txt에서 확인하십숑
+result/[소설명].txt 에서 확인하십숑
 
 예제:
 ![예제](Example.png)

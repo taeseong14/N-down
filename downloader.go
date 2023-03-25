@@ -103,7 +103,19 @@ func main() {
 	}
 
 	info := res["result"].(map[string]interface{})
-	fmt.Printf("\r[%s - %s] is right? (y/n): ", aurora.Cyan(info["title"]), aurora.BrightGreen(info["author"]))
+	title := info["title"].(string)
+	// replace invalid filename - thank you for copilot!
+	title = strings.ReplaceAll(title, "/", "／")
+	title = strings.ReplaceAll(title, "\\", "＼")
+	title = strings.ReplaceAll(title, ":", "：")
+	title = strings.ReplaceAll(title, "*", "＊")
+	title = strings.ReplaceAll(title, "?", "？")
+	title = strings.ReplaceAll(title, "\"", "＂")
+	title = strings.ReplaceAll(title, "<", "＜")
+	title = strings.ReplaceAll(title, ">", "＞")
+	title = strings.ReplaceAll(title, "|", "｜")
+
+	fmt.Printf("\r[%s - %s] is right? (y/n): ", aurora.Cyan(title), aurora.BrightGreen(info["author"]))
 
 	var yn string
 	fmt.Scan(&yn)
@@ -146,10 +158,17 @@ func main() {
 	}
 
 	fmt.Printf("\rGet EP. %.0f/%.0f", resResult.Last, resResult.Last)
+	fmt.Println()
 
-	os.WriteFile("result.txt", []byte(strings.TrimSpace(strings.Join(result, "\n\n\n\n\n\n\n\n\n\n"))), 0644)
+	if _, err := os.Stat("result"); os.IsNotExist(err) {
+		fmt.Print(aurora.BrightRed("\rresult dir not exist"))
+		os.Mkdir("result", 0755)
+		fmt.Println(aurora.BrightGreen("\rresult dir created"))
+	}
 
-	fmt.Println(aurora.Green("\n\nDone! check ./result.txt"))
+	os.WriteFile("result/"+title+".txt", []byte(strings.TrimSpace(strings.Join(result, "\n\n\n\n\n\n\n\n\n\n"))), 0644)
+
+	fmt.Println(aurora.Green("\n\nDone! check ./result/" + title + ".txt"))
 
 	end()
 }
@@ -179,11 +198,11 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 		return
 	}
 
-	ch <- Chan{page.Title + "\n\n\n\n\n" + res["result"].(string), i}
+	ch <- Chan{"[" + strconv.Itoa(i+1) + "화] " + page.Title + "\n\n\n\n\n" + res["result"].(string), i}
 }
 
 func end() {
-	fmt.Print(aurora.BrightWhite("\n\npress enter to exit...").Black())
+	fmt.Print(aurora.BgWhite("\n\npress enter to exit...").Black())
 	fmt.Scanln()
 	fmt.Scanln()
 }
