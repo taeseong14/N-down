@@ -5,14 +5,13 @@
 
 > 개발노트
 
- - 화수 추가중
  - 설정 추가예정(계정, 삽화 url 유무, 화수(1화, 2화) 유무 등등)
 
 
 
 > 사용법
 
- * 1. 릴리즈([v0.0.3](https://github.com/taeseong14/N-down/releases/tag/v0.0.3))에서 "downloader.zip" 을 받는다
+ * 1. 릴리즈([v0.0.4](https://github.com/taeseong14/N-down/releases/tag/v0.0.4))에서 "downloader.zip" 을 받는다
  * 2. 압축을 푼다
  * 3. id(노벨피아, 구글 등 연동 ㄴㄴ) 와 password 입력
  * 4. bookId(소설번호: 178143 등)
