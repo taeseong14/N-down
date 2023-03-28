@@ -52,10 +52,12 @@ func main() {
 		fmt.Scan(&id)
 		if !strings.Contains(id, "@") {
 			id = id + "@gmail.com"
-			fmt.Println(aurora.Green("id:" + id))
+			fmt.Println(aurora.Green("id: " + id))
 		}
 		fmt.Print("pw: ")
 		fmt.Scan(&pw)
+		fmt.Println()
+
 		fmt.Print("\rlogin...")
 	}
 
