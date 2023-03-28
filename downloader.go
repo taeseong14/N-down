@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/logrusorgru/aurora/v4"
+	"github.com/tcnksm/go-input"
 )
 
 const version string = "0.0.5"
@@ -39,6 +40,13 @@ type Chan struct {
 }
 
 func main() {
+	var err error
+
+	ui := &input.UI{
+		Writer: os.Stdout,
+		Reader: os.Stdin,
+	}
+
 	fmt.Println(aurora.Cyan("Novelpia Downloader by taeseong14").Bold(), aurora.Gray(12, "v"+version), aurora.BgWhite("[Github]").Black().Hyperlink("https://github.com/taeseong14/N-down"))
 	fmt.Print(aurora.BgIndex(16, "\n[Login]\n\n"))
 	var LOGINKEY, id, pw string
@@ -48,17 +56,29 @@ func main() {
 		id, pw = s[0], s[1]
 		fmt.Print(aurora.BrightYellow("login with "), aurora.Cyan(id), "...\n")
 	} else {
-		fmt.Print("\nid: ")
-		fmt.Scan(&id)
+		// fmt.Print("\nid: ")
+		// fmt.Scan(&id)
+		id, err = ui.Ask("id", &input.Options{
+			HideOrder: true,
+			Loop:      true,
+		})
 
 		if !strings.Contains(id, "@") {
 			id = id + "@gmail.com"
 			fmt.Println(aurora.Green("id:"), aurora.Green(id))
 		}
 
-		fmt.Print("pw: ")
-		fmt.Scan(&pw)
-		fmt.Println()
+		pw, err = ui.Ask("pw", &input.Options{
+			HideOrder: true,
+			Mask:      true,
+			Loop:      true,
+			Required:  true,
+		})
+		if err != nil {
+			fmt.Println(aurora.BrightRed("Error:"), aurora.BrightRed(err))
+			end()
+			return
+		}
 		fmt.Print("\rlogin...")
 	}
 
@@ -124,7 +144,7 @@ func main() {
 
 	var yn string
 	fmt.Scan(&yn)
-	if !strings.Contains(yn, "y") {
+	if !strings.Contains(yn, "y") && !strings.Contains(yn, "Y") {
 		end()
 		return
 	}
