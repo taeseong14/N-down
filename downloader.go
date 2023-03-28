@@ -156,7 +156,7 @@ func main() {
 		// for i := range resResult.Result {
 		for i := 0; i < left; i++ {
 			if i%50 == 0 {
-				time.Sleep(time.Second)
+				time.Sleep(time.Second / 2)
 			}
 			fmt.Printf("\r[%d of %d] Requesting %d/%d", j+1, jLimit+1, i+1, left)
 			go getEp(LOGINKEY, &resResult.Result[i+j*300], resResult.Last, j*300+i, ch, 1)
@@ -174,13 +174,10 @@ func main() {
 
 		fmt.Print(aurora.Green(" Done!\n\n"))
 
-		if len(resResult.Result) > 300 {
-			for k := 0; k < 5; k++ {
-				fmt.Print("\rResting " + strconv.Itoa(5-k) + " sec...")
-				time.Sleep(time.Second)
-			}
+		if len(resResult.Result) > 300 && left == 300 {
+			fmt.Print("\rResting 5 sec...")
+			time.Sleep(time.Second * 3)
 		}
-		time.Sleep(time.Second * 5)
 	}
 
 	if _, err := os.Stat("result"); os.IsNotExist(err) {
@@ -221,7 +218,7 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 		return
 	}
 
-	ch <- Chan{"[" + strconv.Itoa(i+1) + "화] " + page.Title + "\n\n\n\n\n" + res["result"].(string), i}
+	ch <- Chan{"[" + strconv.Itoa(int(page.Ep)) + "화] " + page.Title + "\n\n\n\n\n" + res["result"].(string), i}
 }
 
 func end() {
