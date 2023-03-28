@@ -13,7 +13,7 @@ import (
 	"github.com/logrusorgru/aurora/v4"
 )
 
-const version string = "0.0.5"
+const version string = "0.0.4"
 
 type User struct {
 	Id string `json:"id"`
@@ -68,10 +68,11 @@ func main() {
 	var res map[string]interface{}
 	json.NewDecoder(resp.Body).Decode(&res)
 
-	if strings.Contains(res["err"].(string), "New Version Released") {
-		fmt.Println(aurora.Yellow("\rNew Version Released:"), aurora.BgWhite(res["v"]).Black().Hyperlink("https://github.com/taeseong14/N-down/releases/tag/v"+res["v"].(string)))
-		end()
-	} else if res["err"] != nil {
+	if res["err"] != nil {
+		if res["err"].(string) == "New Version Released" {
+			fmt.Println(aurora.Yellow("\rNew Version Released:"), aurora.BgWhite(res["v"]).Black().Hyperlink("https://github.com/taeseong14/N-down/releases/tag/v"+res["v"].(string)))
+			end()
+		}
 		fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
 		dat, _ := os.ReadFile("account.txt")
 		if dat != nil {
@@ -138,31 +139,50 @@ func main() {
 	fmt.Printf("\rGet page. %.0f/%.0f", resResult.P+1, resResult.P+1)
 	fmt.Print(aurora.Green(" [100%]\n\n")) // 있어보이려고 100%로 표시(?)
 
-	result := make([]string, 1000)
+	result := make([]string, 2000) // 최대 2000회차까지만 다운로드 가능
 
 	ch := make(chan Chan)
 
-	for i := range resResult.Result {
-		if i%10 == 1 {
-			time.Sleep(time.Millisecond * 100)
+	// 300개씩 끊어서 요청
+	jLimit := len(resResult.Result) / 300
+	for j := 0; j <= jLimit; j++ {
+		// 회차 = j * 300 + i
+
+		// 출력: [${j} of ${jLimit}] ${i} of rest
+		left := len(resResult.Result) - j*300
+		if left > 300 {
+			left = 300
 		}
-		fmt.Printf("\rRequest EP. %d/%.0f [%.0f%s]", i+1, resResult.Last, float64(i)/resResult.Last*100, "%")
-		go getEp(LOGINKEY, &resResult.Result[i], resResult.Last, i, ch, 1)
-		time.Sleep(time.Second / 100)
+
+		// for i := range resResult.Result {
+		for i := 0; i < left; i++ {
+			if i%50 == 0 {
+				time.Sleep(time.Second)
+			}
+			fmt.Printf("\r[%d of %d] Requesting %d/%d", j+1, jLimit+1, i+1, left)
+			go getEp(LOGINKEY, &resResult.Result[i], resResult.Last, j*300+i, ch, 1)
+			time.Sleep(time.Second / 50) // 50 req/s
+		}
+		fmt.Println()
+
+		for a := 0; a < left; a++ {
+			result_ := <-ch
+
+			fmt.Printf("\r[%d of %d] %d/%d", j+1, jLimit+1, a+1, left)
+
+			result[result_.Index] = result_.Result
+		}
+
+		fmt.Print(aurora.Green(" Done!\n\n"))
+
+		if len(resResult.Result) > 300 {
+			for k := 0; k < 5; k++ {
+				fmt.Print("\rResting " + strconv.Itoa(5-k) + " sec...")
+				time.Sleep(time.Second)
+			}
+		}
+		time.Sleep(time.Second * 5)
 	}
-	fmt.Printf("\rRequest EP. %.0f/%.0f", resResult.Last, resResult.Last)
-	fmt.Print(aurora.Green(" [100%]\n\n"))
-
-	fmt.Printf("\rGet EP. %d/%.0f", 0, resResult.Last)
-
-	for a := range resResult.Result {
-		result_ := <-ch
-		fmt.Printf("\rGet EP. %d/%.0f [%.0f%s]", a, resResult.Last, float64(a)/resResult.Last*100, "%")
-		result[result_.Index] = result_.Result
-	}
-
-	fmt.Printf("\rGet EP. %.0f/%.0f", resResult.Last, resResult.Last)
-	fmt.Println()
 
 	if _, err := os.Stat("result"); os.IsNotExist(err) {
 		fmt.Print(aurora.BrightRed("\rresult dir not exist"))
@@ -178,7 +198,7 @@ func main() {
 }
 
 func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, tried int) {
-	if tried == 3 {
+	if tried == 4 {
 		ch <- Chan{page.Title + "\n\n\n\n\nError: 소설 정보를 불러올 수 없음", i}
 		return
 	}
