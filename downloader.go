@@ -13,6 +13,8 @@ import (
 	"github.com/logrusorgru/aurora/v4"
 )
 
+const version string = "0.0.5"
+
 type User struct {
 	Id string `json:"id"`
 	Pw string `json:"pw"`
@@ -37,7 +39,7 @@ type Chan struct {
 }
 
 func main() {
-	fmt.Println(aurora.Cyan("Novelpia Downloader by taeseong14").Bold(), aurora.BgWhite("[Github]").Black().Hyperlink("https://github.com/taeseong14/N-down"))
+	fmt.Println(aurora.Cyan("Novelpia Downloader by taeseong14").Bold(), aurora.Gray(12, "v"+version), aurora.BgWhite("[Github]").Black().Hyperlink("https://github.com/taeseong14/N-down"))
 	fmt.Print(aurora.BgIndex(16, "\n[Login]\n\n"))
 	var LOGINKEY, id, pw string
 	dat, _ := os.ReadFile("account.txt")
@@ -61,12 +63,15 @@ func main() {
 	}
 
 	json_data, _ := json.Marshal(User{id, pw})
-	resp, _ := http.Post("https://b-p.msub.kr/novelp/login", "application/json", bytes.NewBuffer(json_data))
+	resp, _ := http.Post("https://b-p.msub.kr/novelp/login?v="+version, "application/json", bytes.NewBuffer(json_data))
 
 	var res map[string]interface{}
 	json.NewDecoder(resp.Body).Decode(&res)
 
-	if res["err"] != nil {
+	if strings.Contains(res["err"].(string), "New Version Released") {
+		fmt.Println(aurora.Yellow("\rNew Version Released:"), aurora.BgWhite(res["v"]).Black().Hyperlink("https://github.com/taeseong14/N-down/releases/tag/v"+res["v"].(string)))
+		end()
+	} else if res["err"] != nil {
 		fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
 		dat, _ := os.ReadFile("account.txt")
 		if dat != nil {
@@ -104,7 +109,6 @@ func main() {
 
 	info := res["result"].(map[string]interface{})
 	title := info["title"].(string)
-	// replace invalid filename - thank you for copilot!
 	title = strings.ReplaceAll(title, "/", "／")
 	title = strings.ReplaceAll(title, "\\", "＼")
 	title = strings.ReplaceAll(title, ":", "：")
@@ -132,7 +136,7 @@ func main() {
 	var resResult Results
 	json.NewDecoder(resp.Body).Decode(&resResult)
 	fmt.Printf("\rGet page. %.0f/%.0f", resResult.P+1, resResult.P+1)
-	fmt.Print(aurora.Green(" [100%]\n\n"))
+	fmt.Print(aurora.Green(" [100%]\n\n")) // 있어보이려고 100%로 표시(?)
 
 	result := make([]string, 1000)
 
