@@ -11,7 +11,7 @@
 
 > 사용법
 
- * 1. 릴리즈([v0.0.5](https://github.com/taeseong14/N-down/releases/tag/v0.0.5))에서 "downloader.zip" 을 받는다
+ * 1. 릴리즈([v0.0.6](https://github.com/taeseong14/N-down/releases/tag/v0.0.6))에서 "downloader.zip" 을 받는다
  * 2. 압축을 푼다
  * 3. id(노벨피아 only, 구글 등 연동 ㄴㄴ) 와 password 입력
  * 4. bookId(소설번호: 178143 등)
@@ -35,3 +35,5 @@ result/[소설명].txt 에서 확인하십숑
 If there's any problem while downloading, progressing, or any additional function you want
 
 [click here to make new issue](https://github.com/taeseong14/N-down/issues/new)
+
++ 기존꺼와 다른 문제/개선점이라면 새 이슈를 추가해주세요. (^)
