@@ -27,10 +27,10 @@ type Results struct {
 }
 
 type Result struct {
-	Title string  `json:"title"`
-	Ep    float64 `json:"ep"`
-	Date  string  `json:"date"`
-	Link  string  `json:"link"`
+	Title string `json:"title"`
+	Ep    string `json:"ep"`
+	Date  string `json:"date"`
+	Link  string `json:"link"`
 }
 
 type Chan struct {
@@ -218,7 +218,10 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 		return
 	}
 
-	ch <- Chan{"[" + strconv.Itoa(int(page.Ep)) + "화] " + page.Title + "\n\n\n\n\n" + res["result"].(string), i}
+	if page.Ep != "BONUS" {
+		page.Ep += "화"
+	}
+	ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\n" + res["result"].(string), i}
 }
 
 func end() {
