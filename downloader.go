@@ -13,7 +13,7 @@ import (
 	"github.com/logrusorgru/aurora/v4"
 )
 
-const version string = "0.0.6"
+const version string = "0.0.7"
 
 type User struct {
 	Id string `json:"id"`
@@ -71,6 +71,7 @@ func main() {
 		if res["err"].(string) == "New Version Released" {
 			fmt.Println(aurora.Yellow("\rNew Version Released:"), aurora.BgWhite(res["v"]).Black().Hyperlink("https://github.com/taeseong14/N-down/releases/tag/v"+res["v"].(string)))
 			end()
+			return
 		}
 		fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
 		dat, _ := os.ReadFile("account.txt")
