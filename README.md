@@ -39,3 +39,9 @@ If there's any problem while downloading, progressing, or any additional functio
 [click here to make new issue](https://github.com/taeseong14/N-down/issues/new)
 
 + 기존꺼와 다른 문제/개선점이라면 새 이슈를 추가해주세요. (^)
+
+
+
+
+
+ + 개발자 컨택: hutao@genshin.ai
