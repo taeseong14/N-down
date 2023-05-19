@@ -182,9 +182,9 @@ func main() {
 	}
 
 	if _, err := os.Stat("result"); os.IsNotExist(err) {
-		fmt.Print(aurora.BrightRed("\rresult dir not exist"))
+		fmt.Print(aurora.BrightRed("\rresult dir does not exist"))
 		os.Mkdir("result", 0755)
-		fmt.Println(aurora.BrightGreen("\rresult dir created"))
+		fmt.Println(aurora.BrightGreen("\rresult directory created"))
 	}
 
 	os.WriteFile("result/"+title+".txt", []byte(strings.TrimSpace(strings.Join(result, "\n\n\n\n\n\n\n\n\n\n"))), 0644)
@@ -196,7 +196,7 @@ func main() {
 
 func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, tried int) {
 	if tried == 4 {
-		ch <- Chan{page.Title + "\n\n\n\n\nError: 소설 정보를 불러올 수 없음", i}
+		ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\nError: 소설 정보를 불러올 수 없음", i}
 		return
 	}
 	req, _ := http.NewRequest("GET", "https://b-p.msub.kr/novelp/view/?id="+page.Link, nil)
@@ -210,7 +210,7 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 	if res["err"] != nil {
 		fmt.Println(aurora.BrightYellow("\n\n  at EP." + strconv.Itoa(i+1) + ":"))
 		fmt.Print(aurora.BrightRed(res["err"].(string) + "\n\n"))
-		ch <- Chan{page.Title + "\n\n\n\n\n" + res["err"].(string), i}
+		ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\n" + res["err"].(string), i}
 		return
 	}
 
