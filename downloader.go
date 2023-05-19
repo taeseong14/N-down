@@ -13,7 +13,7 @@ import (
 	"github.com/logrusorgru/aurora/v4"
 )
 
-const version string = "0.0.7"
+const version string = "0.0.8"
 
 type User struct {
 	Id string `json:"id"`
