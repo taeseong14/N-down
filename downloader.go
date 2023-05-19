@@ -13,7 +13,7 @@ import (
 	"github.com/logrusorgru/aurora/v4"
 )
 
-const version string = "0.0.8"
+const version string = "0.0.9"
 
 type User struct {
 	Id string `json:"id"`
@@ -137,9 +137,9 @@ func main() {
 	var resResult Results
 	json.NewDecoder(resp.Body).Decode(&resResult)
 	fmt.Printf("\rGet page. %.0f/%.0f", resResult.P+1, resResult.P+1)
-	fmt.Print(aurora.Green(" [100%]\n\n")) // 있어보이려고 100%로 표시(?)
+	fmt.Print(aurora.Green(" [100%]\n\n"))
 
-	result := make([]string, int(resResult.P)*20+10) // 최대 2000회차까지만 다운로드 가능
+	result := make([]string, int(resResult.P)*20+300)
 
 	ch := make(chan Chan)
 
