@@ -1,6 +1,6 @@
 # [Novelpia Downloader](https://github.com/taeseong14/N-down)
 
-속보) 서버가 뒤져서 코딩을 못한다 (버그 고쳐야하는데)
+속보) 구조 바꾸기 귀찮다
 
 노벨피아 다운로더
 

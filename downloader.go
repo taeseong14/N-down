@@ -139,7 +139,7 @@ func main() {
 	fmt.Printf("\rGet page. %.0f/%.0f", resResult.P+1, resResult.P+1)
 	fmt.Print(aurora.Green(" [100%]\n\n")) // 있어보이려고 100%로 표시(?)
 
-	result := make([]string, 2000) // 최대 2000회차까지만 다운로드 가능
+	result := make([]string, int(resResult.P)*20+10) // 최대 2000회차까지만 다운로드 가능
 
 	ch := make(chan Chan)
 
