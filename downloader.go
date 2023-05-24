@@ -94,39 +94,46 @@ func main() {
 	}
 
 	var bookid int
-	fmt.Print(aurora.BrightMagenta("\nbookId: "))
-	fmt.Scan(&bookid)
+	var title string
 
-	fmt.Print(aurora.BrightCyan("\rloading book info..."))
+	for {
 
-	resp, _ = http.Get("https://b-p.msub.kr/novelp/info/?id=" + strconv.Itoa(bookid))
-	json.NewDecoder(resp.Body).Decode(&res)
+		fmt.Print(aurora.BrightMagenta("\nbookId: "))
+		fmt.Scan(&bookid)
 
-	if res["err"] != nil {
-		fmt.Print(aurora.BrightRed("\rError:"), aurora.BrightRed(res["err"]))
-		end()
-		return
-	}
+		fmt.Print(aurora.BrightCyan("\rloading book info..."))
 
-	info := res["result"].(map[string]interface{})
-	title := info["title"].(string)
-	title = strings.ReplaceAll(title, "/", "／")
-	title = strings.ReplaceAll(title, "\\", "＼")
-	title = strings.ReplaceAll(title, ":", "：")
-	title = strings.ReplaceAll(title, "*", "＊")
-	title = strings.ReplaceAll(title, "?", "？")
-	title = strings.ReplaceAll(title, "\"", "＂")
-	title = strings.ReplaceAll(title, "<", "＜")
-	title = strings.ReplaceAll(title, ">", "＞")
-	title = strings.ReplaceAll(title, "|", "｜")
+		resp, _ = http.Get("https://b-p.msub.kr/novelp/info/?id=" + strconv.Itoa(bookid))
+		json.NewDecoder(resp.Body).Decode(&res)
 
-	fmt.Printf("\r[%s - %s] is right? (y/n): ", aurora.Cyan(title), aurora.BrightGreen(info["author"]))
+		if res["err"] != nil {
+			fmt.Print(aurora.BrightRed("\rError:"), aurora.BrightRed(res["err"]))
+			fmt.Println()
+			continue
+		}
 
-	var yn string
-	fmt.Scan(&yn)
-	if !strings.Contains(yn, "y") && !strings.Contains(yn, "Y") {
-		end()
-		return
+		info := res["result"].(map[string]interface{})
+		title := info["title"].(string)
+		title = strings.ReplaceAll(title, "/", "／")
+		title = strings.ReplaceAll(title, "\\", "＼")
+		title = strings.ReplaceAll(title, ":", "：")
+		title = strings.ReplaceAll(title, "*", "＊")
+		title = strings.ReplaceAll(title, "?", "？")
+		title = strings.ReplaceAll(title, "\"", "＂")
+		title = strings.ReplaceAll(title, "<", "＜")
+		title = strings.ReplaceAll(title, ">", "＞")
+		title = strings.ReplaceAll(title, "|", "｜")
+
+		fmt.Printf("\r[%s - %s] is right? (y/n): ", aurora.Cyan(title), aurora.BrightGreen(info["author"]))
+
+		var yn string
+		fmt.Scan(&yn)
+		if !strings.Contains(yn, "y") && !strings.Contains(yn, "Y") {
+			fmt.Println()
+		} else {
+			break
+		}
+
 	}
 
 	fmt.Println()
