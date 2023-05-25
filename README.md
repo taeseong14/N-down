@@ -17,4 +17,4 @@
 
 
 
-개발자 컨택: hutao@genshin
+개발자 컨택: hutao@genshin.ai
