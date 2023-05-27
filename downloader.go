@@ -260,7 +260,6 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 	str = strings.ReplaceAll(str, "\"><div class='cover-text' onClick='cover_hide();'>커버보기 <i class='icon ion-ios-arrow-down'></i></div></div>", "]")
 
 	if str == "" {
-		fmt.Println("다시갓고옴")
 		getEp(LOGINKEY, page, max, i, ch, tried+1)
 		return
 	}
