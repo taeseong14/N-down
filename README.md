@@ -1,7 +1,5 @@
 # [Novelpia Downloader](https://github.com/taeseong14/N-down)
 
-속보) 구조 바꾸기 귀찮다
-
 노벨피아 다운로더
 
 ### 공지사항
@@ -27,6 +25,7 @@ result/[소설명].txt 파일에서 확인하십숑
 
 예제:
 ![예제](Example.png)
+참고) windows powershell을 이용해야 빤딱빤딱하게 나오빈다.
 
 자세한건 설명서(zip파일의 README) ㄱㄱ
 

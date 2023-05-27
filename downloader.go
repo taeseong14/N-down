@@ -38,6 +38,12 @@ type Chan struct {
 	Index  int
 }
 
+type respBody struct {
+	S []struct {
+		Text string `json:"text"`
+	} `json:"s"`
+}
+
 func main() {
 	fmt.Println(aurora.Cyan("Novelpia Downloader by taeseong14").Bold(), aurora.Gray(12, "v"+version), aurora.BgWhite("[Github]").Black().Hyperlink("https://github.com/taeseong14/N-down"))
 	fmt.Print(aurora.BgIndex(16, "\n[Login]\n\n"))
@@ -113,7 +119,7 @@ func main() {
 		}
 
 		info := res["result"].(map[string]interface{})
-		title := info["title"].(string)
+		title = info["title"].(string)
 		title = strings.ReplaceAll(title, "/", "／")
 		title = strings.ReplaceAll(title, "\\", "＼")
 		title = strings.ReplaceAll(title, ":", "：")
@@ -206,30 +212,57 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 		ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\nError: 소설 정보를 불러올 수 없음", i}
 		return
 	}
-	req, _ := http.NewRequest("GET", "https://b-p.msub.kr/novelp/view/?id="+page.Link, nil)
-	req.Header.Set("Cookie", "LOGINKEY="+LOGINKEY+";")
+	// req, _ := http.NewRequest("GET", "https://b-p.msub.kr/novelp/view/?id="+page.Link, nil)
+	// req.Header.Set("Cookie", "LOGINKEY="+LOGINKEY+";")
 
-	resp, _ := http.DefaultClient.Do(req)
+	// resp, _ := http.DefaultClient.Do(req)
 
-	var res map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&res)
+	// var res map[string]interface{}
+	// json.NewDecoder(resp.Body).Decode(&res)
 
-	if res["err"] != nil {
-		fmt.Println(aurora.BrightYellow("\n\n  at EP." + strconv.Itoa(i+1) + ":"))
-		fmt.Print(aurora.BrightRed(res["err"].(string) + "\n\n"))
-		ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\n" + res["err"].(string), i}
-		return
+	// if res["err"] != nil {
+	// 	fmt.Println(aurora.BrightYellow("\n\n  at EP." + strconv.Itoa(i+1) + ":"))
+	// 	fmt.Print(aurora.BrightRed(res["err"].(string) + "\n\n"))
+	// 	ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\n" + res["err"].(string), i}
+	// 	return
+	// }
+
+	// if res["result"] == nil {
+	// 	getEp(LOGINKEY, page, max, i, ch, tried+1)
+	// 	return
+	// }
+
+	req, _ := http.NewRequest("POST", "https://novelpia.com/proc/viewer_data/"+page.Link, nil)
+	req.Header.Set("Cookie", "LOGINKEY=babpool;")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/999.0.9999.999 Safari/537.36")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
 	}
+	defer resp.Body.Close()
 
-	if res["result"] == nil {
-		getEp(LOGINKEY, page, max, i, ch, tried+1)
-		return
+	var body respBody
+	_ = json.NewDecoder(resp.Body).Decode(&body)
+
+	arr := make([]string, len(body.S))
+	for i := 0; i < len(body.S); i++ {
+		arr[i] = body.S[i].Text
 	}
+	str := strings.Join(arr, "")
+
+	str = strings.ReplaceAll(str, "&nbsp;", " ")
+	str = strings.ReplaceAll(str, "&lt;", "<")
+	str = strings.ReplaceAll(str, "&gt;", ">")
+	str = strings.ReplaceAll(str, "&amp;", "&")
+	str = strings.ReplaceAll(str, "&quot;", "\"")
+	str = strings.ReplaceAll(str, "<div class='cover-wrapper'><img style='max-width:100%;' id='imgs_0' class='cover-img cover-no' src=\"", "[이미지: http:")
+	str = strings.ReplaceAll(str, "\"><div class='cover-text' onClick='cover_hide();'>커버보기 <i class='icon ion-ios-arrow-down'></i></div></div>", "]")
 
 	if page.Ep != "BONUS" {
 		page.Ep += "화"
 	}
-	ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\n" + res["result"].(string), i}
+	ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\n" + str, i}
 }
 
 func end() {
