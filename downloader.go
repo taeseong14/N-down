@@ -174,7 +174,7 @@ func main() {
 			}
 			fmt.Printf("\r[%d of %d] Requesting %d/%d", j+1, jLimit+1, i+1, left)
 			go getEp(LOGINKEY, &resResult.Result[i+j*300], resResult.Last, j*300+i, ch, 1)
-			time.Sleep(time.Second / 50) // 50 req/s
+			time.Sleep(time.Second / 30) // 30 req/s
 		}
 		fmt.Println()
 
@@ -208,7 +208,7 @@ func main() {
 }
 
 func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, tried int) {
-	if tried == 4 {
+	if tried == 6 { // 5트까지
 		ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\nError: 소설 정보를 불러올 수 없음", i}
 		return
 	}
@@ -233,8 +233,8 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 	// }
 
 	req, _ := http.NewRequest("POST", "https://novelpia.com/proc/viewer_data/"+page.Link, nil)
-	req.Header.Set("Cookie", "LOGINKEY=babpool;")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/999.0.9999.999 Safari/537.36")
+	req.Header.Set("Cookie", "LOGINKEY="+LOGINKEY+";")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Novelpia Downloader)")
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -258,6 +258,12 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 	str = strings.ReplaceAll(str, "&quot;", "\"")
 	str = strings.ReplaceAll(str, "<div class='cover-wrapper'><img style='max-width:100%;' id='imgs_0' class='cover-img cover-no' src=\"", "[이미지: http:")
 	str = strings.ReplaceAll(str, "\"><div class='cover-text' onClick='cover_hide();'>커버보기 <i class='icon ion-ios-arrow-down'></i></div></div>", "]")
+
+	if str == "" {
+		fmt.Println("다시갓고옴")
+		getEp(LOGINKEY, page, max, i, ch, tried+1)
+		return
+	}
 
 	if page.Ep != "BONUS" {
 		page.Ep += "화"
