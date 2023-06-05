@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -251,13 +252,23 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 	}
 	str := strings.Join(arr, "")
 
+	str = regexp.MustCompile(`src="([^"]+)"`).ReplaceAllStringFunc(str, func(s string) string {
+		s = strings.Replace(s, "src=\"", "", 1)
+		s = strings.Replace(s, "\"", "", 1)
+		if strings.HasPrefix(s, "http") {
+			return ">[이미지: " + s + "]<"
+		} else {
+			return ">[이미지: http:" + s + "]<"
+		}
+	})
+	str = strings.ReplaceAll(str, "커버보기", "")
+	str = regexp.MustCompile(`<[^>]*>`).ReplaceAllString(str, "")
+
 	str = strings.ReplaceAll(str, "&nbsp;", " ")
 	str = strings.ReplaceAll(str, "&lt;", "<")
 	str = strings.ReplaceAll(str, "&gt;", ">")
 	str = strings.ReplaceAll(str, "&amp;", "&")
 	str = strings.ReplaceAll(str, "&quot;", "\"")
-	str = strings.ReplaceAll(str, "<div class='cover-wrapper'><img style='max-width:100%;' id='imgs_0' class='cover-img cover-no' src=\"", "[이미지: http:")
-	str = strings.ReplaceAll(str, "\"><div class='cover-text' onClick='cover_hide();'>커버보기 <i class='icon ion-ios-arrow-down'></i></div></div>", "]")
 
 	if str == "" {
 		getEp(LOGINKEY, page, max, i, ch, tried+1)
