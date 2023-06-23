@@ -10,7 +10,7 @@
 
 > 사용법
 
- * 1. 릴리즈([v0.1.0](https://github.com/taeseong14/N-down/releases/tag/v0.1.0))에서 "downloader.zip" 을 받는다
+ * 1. 릴리즈([v0.1.1](https://github.com/taeseong14/N-down/releases/tag/v0.1.1))에서 "downloader.zip" 을 받는다
  * 2. 압축을 푼다
  * 3. downloader.exe 실행
  * 4. id(노벨피아 only, 구글 등 연동 ㄴㄴ) 와 password 입력
