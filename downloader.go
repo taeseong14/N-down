@@ -16,6 +16,8 @@ import (
 
 const version string = "0.1.0"
 
+const space string = "\n\n\n\n\n\n\n\n\n\n"
+
 type User struct {
 	Id string `json:"id"`
 	Pw string `json:"pw"`
@@ -25,6 +27,7 @@ type Results struct {
 	Result []Result `json:"result"`
 	Last   float64  `json:"last"`
 	P      float64  `json:"p"`
+	Cont   bool     `json:"cont"`
 }
 
 type Result struct {
@@ -145,9 +148,26 @@ func main() {
 
 	fmt.Println()
 
-	fmt.Printf("\rGet page.")
+	// read /result/{title} file
+	d, _ := os.ReadFile("./result/" + title + ".txt")
+	l := "0"
+	if string(d) != "" {
+		arr := strings.Split(string(d), "\n")
+		for _, v := range arr {
+			// if v startsWith("[") and contains "화]"
+			if strings.HasPrefix(v, "[") && strings.Contains(v, "화]") {
+				l = v[1:strings.Index(v, "화]")]
+			}
+		}
+		if l == "BONUS" {
+			l = "0"
+		}
+	}
 
-	resp, _ = http.Get("https://b-p.msub.kr/novelp/list/?p=all&id=" + strconv.Itoa(bookid))
+	fmt.Println("last ep:", l)
+	fmt.Printf("\rGet page.")
+	pageLink := fmt.Sprintf("https://b-p.msub.kr/novelp/list/?p=all&last=%s&id=%d", l, bookid)
+	resp, _ = http.Get(pageLink)
 	var resResult Results
 	json.NewDecoder(resp.Body).Decode(&resResult)
 	fmt.Printf("\rGet page. %.0f/%.0f", resResult.P+1, resResult.P+1)
@@ -201,7 +221,11 @@ func main() {
 		fmt.Println(aurora.BrightGreen("\rresult directory created"))
 	}
 
-	os.WriteFile("result/"+title+".txt", []byte(strings.TrimSpace(strings.Join(result, "\n\n\n\n\n\n\n\n\n\n"))), 0644)
+	if resResult.Cont {
+		os.WriteFile("result/"+title+".txt", []byte(string(d)+space+strings.TrimSpace(strings.Join(result, space))), 0644)
+	} else {
+		os.WriteFile("result/"+title+".txt", []byte(strings.TrimSpace(strings.Join(result, space))), 0644)
+	}
 
 	fmt.Println(aurora.Green("\n\nDone! check ./result/" + title + ".txt"))
 
