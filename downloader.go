@@ -173,6 +173,12 @@ func main() {
 	fmt.Printf("\rGet page. %.0f/%.0f", resResult.P+1, resResult.P+1)
 	fmt.Print(aurora.Green(" [100%]\n\n"))
 
+	if len(resResult.Result) == 0 {
+		fmt.Println(aurora.BrightRed("No new episode"))
+		end()
+		return
+	}
+
 	result := make([]string, int(resResult.P)*20+300)
 
 	ch := make(chan Chan)
