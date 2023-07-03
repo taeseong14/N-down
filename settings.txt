@@ -1,5 +1,5 @@
 {
-    "account.auto_login": false,
+    "account.auto_login": true,
     "account.auto_login_file": "account.txt",
     "account.default_mail": "@gmail.com",
     "cmd.check_with_yn": true,
