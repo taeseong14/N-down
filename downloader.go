@@ -16,7 +16,7 @@ import (
 
 const version string = "0.1.1"
 
-const space string = "\n\n\n\n\n\n\n\n\n\n"
+var space string
 
 type User struct {
 	Id string `json:"id"`
@@ -61,7 +61,7 @@ func main() {
 	}
 	setting = make(map[string]interface{})
 	json.Unmarshal([]byte(set), &setting)
-
+	space = setting["result.space_between_episodes"].(string)
 	useColors = setting["cmd.use_colors"].(bool)
 	if useColors {
 		fmt.Println(aurora.Cyan("Novelpia Downloader by taeseong14").Bold(), aurora.Gray(12, "v"+version), aurora.BgWhite("[Github]").Black().Hyperlink("https://github.com/taeseong14/N-down"))
@@ -211,10 +211,11 @@ func main() {
 				}
 			} else {
 				if useColors {
-					fmt.Printf("\rDownloading [%s - %s]...", aurora.Cyan(title), aurora.BrightGreen(author))
+					fmt.Printf("\rDownloading [%s - %s]...\n", aurora.Cyan(title), aurora.BrightGreen(author))
 				} else {
-					fmt.Printf("\rDownloading [%s - %s]...", title, author)
+					fmt.Printf("\rDownloading [%s - %s]...\n", title, author)
 				}
+				break
 			}
 
 		}
@@ -345,7 +346,7 @@ func main() {
 }
 
 func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, tried int) {
-	if tried == setting["cmd.max_try_per_episode"].(int)+1 {
+	if tried == int(setting["cmd.max_try_per_episode"].(float64)+1) {
 		ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\nError: 소설 정보를 불러올 수 없음", i}
 		return
 	}
@@ -396,9 +397,9 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 		s = strings.Replace(s, "\"", "", 1)
 		imgFormat := setting["result.image_format"].(string)
 		if strings.HasPrefix(s, "http") {
-			return strings.Replace(imgFormat, "${link}", s, 1)
+			return ">" + strings.Replace(imgFormat, "${link}", s, 1) + "<"
 		} else {
-			return strings.Replace(imgFormat, "${link}", "http:"+s, 1)
+			return ">" + strings.Replace(imgFormat, "${link}", "http:"+s, 1) + "<"
 		}
 	})
 	str = strings.ReplaceAll(str, "커버보기", "")
@@ -422,7 +423,11 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 }
 
 func end() {
-	fmt.Print(aurora.BgWhite("\n\npress enter to exit...").Black())
+	if useColors {
+		fmt.Print(aurora.BgWhite("\n\npress enter to exit...").Black())
+	} else {
+		fmt.Print("\n\npress enter to exit...")
+	}
 	fmt.Scanln()
 	fmt.Scanln()
 }
