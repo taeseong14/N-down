@@ -5,12 +5,12 @@
 
 ### 공지
 
- - 설정 파일 추가..중
+ - 설정 파일 추가 완료: [문서](#doc) 참고
 
 
 ### 사용법
 
- * 1. 릴리즈([v0.1.1](https://github.com/taeseong14/N-down/releases/tag/v0.1.1))에서 "downloader.zip" 을 받는다
+ * 1. 릴리즈([v0.1.2](https://github.com/taeseong14/N-down/releases/tag/v0.1.2))에서 "downloader.zip" 을 받는다
  * 2. 압축을 푼다
  * 3. downloader.exe 실행
  * 4. id(노벨피아 id만 가능, 구글 등 연동 ㄴㄴ) 와 password 입력
@@ -30,7 +30,7 @@ result/[소설명].txt 파일에서 확인하십숑
  - downloader.go를 실행하면 만들어지는 파일 settings.txt를 수정해서 다운로더/다운로드 파일을 입맛대로 쓰실수 있읍니다.
  - "key": value 형식이니 value만 바꿔가며 쓰십시오. (따옴표 등은 건들지 않는것을 추천함)
 
-<details>
+<details id="doc">
 <summary style="font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 20px; color: #e3e182;">Settings Document</summary>
 <div>
 
