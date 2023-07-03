@@ -31,7 +31,7 @@ result/[소설명].txt 파일에서 확인하십숑
  - "key": value 형식이니 value만 바꿔가며 쓰십시오. (따옴표 등은 건들지 않는것을 추천함)
 
 <details>
-<summary style="font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 20px;">Settings Document</summary>
+<summary style="font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 20px; color: #e3e182;">Settings Document</summary>
 <div>
 
 > "account.auto_login": Boolean (true | false)
