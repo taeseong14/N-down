@@ -1,5 +1,11 @@
 *.exe
-*.txt
+
+# *.txt
+account*
+README.txt
+
 test.*
+
 result/
+
 *.zip

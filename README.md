@@ -25,12 +25,14 @@ result/[소설명].txt 파일에서 확인하십숑
 
 자세한건 설명서(zip파일의 README) ㄱㄱ
 
+---
 
+### 주의사항
 
-> 주의사항
-
- - exe 파일 다운로드 시, 실행 시에 경고창이 뜨지만 [위 파일](./downloader.go)을 빌드한것이니까 안심하셔도 됨 (정 머하면 golang 설치후 직접 go build downloader.go 치기)
- - 동시에 여러개 다운받다가 정지먹어도 책임 없습니다
+ - exe 파일 다운로드 시, 실행 시에 경고창이 뜨지만 [위 downloader.go 파일](./downloader.go)을 빌드한것이니까 안심하셔도 됩니다. (정 머하면 golang 설치후 직접 go build downloader.go 쳐서 exe 만들기)
+ - 동시에 여러개를 다운받으면 사용자에게 피해가 갈 수 있습니다.
+ - 이 프로그램을 사용함으로써 생기는 피해는 이 프로그램의 제작자가 책임지지 않으며, 이 프로그램의 결과물의 저작권은 모두 원 저작자에게 있습니다. 무단 배포 및 전재가 금지됩니다.
+ - 실행시 exe파일이 있는곳에 result폴더와 account.txt파일, settings.txt 파일을 생성하니 주의해주세요.
 
 
 ---
@@ -40,7 +42,6 @@ If there's any problem while downloading, progressing, or any additional functio
 
 [click here to make new issue](https://github.com/taeseong14/N-down/issues/new)
 
-+ 기존꺼와 다른 문제/개선점이라면 새 이슈를 추가해주세요. (^)
-
+ + 기존꺼와 다른 문제/개선점이라면 새 이슈를 추가해주세요. (^)
 
  + 개발자 컨택: hutao@genshin.ai
