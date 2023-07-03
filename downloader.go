@@ -48,21 +48,49 @@ type respBody struct {
 	} `json:"s"`
 }
 
+var setting map[string]interface{}
+var useColors bool
+
 func main() {
-	fmt.Println(aurora.Cyan("Novelpia Downloader by taeseong14").Bold(), aurora.Gray(12, "v"+version), aurora.BgWhite("[Github]").Black().Hyperlink("https://github.com/taeseong14/N-down"))
-	fmt.Print(aurora.BgIndex(16, "\n[Login]\n\n"))
+	// read file: settings.txt
+	dat, _ := os.ReadFile("settings.txt")
+	set := string(dat)
+	if dat == nil {
+		set = "{\r\n    \"account.auto_login\": true,\r\n    \"account.auto_login_file\": \"account.txt\",\r\n    \"account.default_mail\": \"@gmail.com\",\r\n    \"cmd.check_with_yn\": true,\r\n    \"cmd.exit_when_finish\": true,\r\n    \"cmd.max_try_per_episode\": 5,\r\n    \"cmd.use_colors\": true,\r\n    \"result.image_display\": true,\r\n    \"result.image_format\": \"[이미지: ${link}]\",\r\n    \"result.directory_name\": \"result\",\r\n    \"result.file_name\": \"${title}.txt\",\r\n    \"result.space_between_episodes\": \"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\"\r\n}"
+		os.WriteFile("settings.txt", []byte(set), 0644)
+	}
+	setting = make(map[string]interface{})
+	json.Unmarshal([]byte(set), &setting)
+
+	useColors = setting["cmd.use_colors"].(bool)
+	if useColors {
+		fmt.Println(aurora.Cyan("Novelpia Downloader by taeseong14").Bold(), aurora.Gray(12, "v"+version), aurora.BgWhite("[Github]").Black().Hyperlink("https://github.com/taeseong14/N-down"))
+		fmt.Print(aurora.BgIndex(16, "\n[Login]\n\n"))
+	} else {
+		fmt.Println("Novelpia Downloader by taeseong14", "v"+version, "[Github] github.com/taeseong14/N-down")
+		fmt.Print("\n[Login]\n\n")
+	}
 	var LOGINKEY, id, pw string
-	dat, _ := os.ReadFile("account.txt")
-	if dat != nil {
+	loginDataFile := setting["account.auto_login_file"].(string)
+	dat, _ = os.ReadFile(loginDataFile)
+	if dat != nil && setting["account.auto_login"].(bool) {
 		s := strings.Split(string(dat), "\n")
 		id, pw = s[0], s[1]
-		fmt.Print(aurora.BrightYellow("login with "), aurora.Cyan(id), "...\n")
+		if useColors {
+			fmt.Print(aurora.BrightYellow("login with "), aurora.Cyan(id), "...\n")
+		} else {
+			fmt.Print("login with ", id, "...\n")
+		}
 	} else {
 		fmt.Print("\nid: ")
 		fmt.Scan(&id)
 		if !strings.Contains(id, "@") {
-			id = id + "@gmail.com"
-			fmt.Println(aurora.Green("id: " + id))
+			id = id + setting["account.default_mail"].(string)
+			if useColors {
+				fmt.Println(aurora.Green("id: " + id))
+			} else {
+				fmt.Println("id: " + id)
+			}
 		}
 		fmt.Print("pw: ")
 		fmt.Scan(&pw)
@@ -79,15 +107,23 @@ func main() {
 
 	if res["err"] != nil {
 		if res["err"].(string) == "New Version Released" {
-			fmt.Println(aurora.Yellow("\rNew Version Released:"), aurora.BgWhite(res["v"]).Black().Hyperlink("https://github.com/taeseong14/N-down/releases/tag/v"+res["v"].(string)))
+			if useColors {
+				fmt.Println(aurora.Yellow("\rNew Version Released:"), aurora.BgWhite(res["v"]).Black().Hyperlink("https://github.com/taeseong14/N-down/releases/tag/v"+res["v"].(string)))
+			} else {
+				fmt.Println("\rNew Version Released: https://github.com/taeseong14/N-down/releases/tag/v" + res["v"].(string))
+			}
 			end()
 			return
 		}
-		fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
-		dat, _ := os.ReadFile("account.txt")
+		if useColors {
+			fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
+		} else {
+			fmt.Println("\n\nError:", res["err"])
+		}
+		dat, _ := os.ReadFile(loginDataFile)
 		if dat != nil {
-			os.Remove("account.txt")
-			fmt.Println("\n./account.txt removed")
+			os.Remove(loginDataFile)
+			fmt.Println("\naccount file removed")
 		}
 		end()
 		return
@@ -95,151 +131,221 @@ func main() {
 
 	LOGINKEY = res["result"].(string)
 
-	fmt.Println(aurora.BrightGreen("\rlogin success"))
-
-	dat, _ = os.ReadFile("account.txt")
-	if dat == nil {
-		fmt.Println(aurora.BrightBlue("login data saved in ./account.txt"))
-		os.WriteFile("account.txt", []byte(id+"\n"+pw), 0644)
+	if useColors {
+		fmt.Println(aurora.BrightGreen("\rlogin success"))
+	} else {
+		fmt.Println("\rlogin success")
 	}
 
-	var bookid int
-	var title string
+	if setting["account.auto_login"].(bool) {
+		dat, _ = os.ReadFile(loginDataFile)
+		if dat == nil {
+			if useColors {
+				fmt.Println(aurora.BrightBlue("login data saved in " + loginDataFile))
+			} else {
+				fmt.Println("login data saved in " + loginDataFile)
+			}
+			os.WriteFile(loginDataFile, []byte(id+"\n"+pw), 0644)
+		}
+	}
 
 	for {
 
-		fmt.Print(aurora.BrightMagenta("\nbookId: "))
-		fmt.Scan(&bookid)
+		var bookid int
+		var title, author string
 
-		fmt.Print(aurora.BrightCyan("\rloading book info..."))
+		for {
 
-		resp, _ = http.Get("https://b-p.msub.kr/novelp/info/?id=" + strconv.Itoa(bookid))
-		json.NewDecoder(resp.Body).Decode(&res)
-
-		if res["err"] != nil {
-			fmt.Print(aurora.BrightRed("\rError:"), aurora.BrightRed(res["err"]))
-			fmt.Println()
-			continue
-		}
-
-		info := res["result"].(map[string]interface{})
-		title = info["title"].(string)
-		title = strings.ReplaceAll(title, "/", "／")
-		title = strings.ReplaceAll(title, "\\", "＼")
-		title = strings.ReplaceAll(title, ":", "：")
-		title = strings.ReplaceAll(title, "*", "＊")
-		title = strings.ReplaceAll(title, "?", "？")
-		title = strings.ReplaceAll(title, "\"", "＂")
-		title = strings.ReplaceAll(title, "<", "＜")
-		title = strings.ReplaceAll(title, ">", "＞")
-		title = strings.ReplaceAll(title, "|", "｜")
-
-		fmt.Printf("\r[%s - %s] is right? (y/n): ", aurora.Cyan(title), aurora.BrightGreen(info["author"]))
-
-		var yn string
-		fmt.Scan(&yn)
-		if !strings.Contains(yn, "y") && !strings.Contains(yn, "Y") {
-			fmt.Println()
-		} else {
-			break
-		}
-
-	}
-
-	fmt.Println()
-
-	// read /result/{title} file
-	d, _ := os.ReadFile("./result/" + title + ".txt")
-	l := "0"
-	if string(d) != "" {
-		arr := strings.Split(string(d), "\n")
-		for _, v := range arr {
-			// if v startsWith("[") and contains "화]"
-			if strings.HasPrefix(v, "[") && strings.Contains(v, "화]") {
-				l = v[1:strings.Index(v, "화]")]
+			if useColors {
+				fmt.Print(aurora.BrightMagenta("\nbookId: "))
+			} else {
+				fmt.Print("\nbookId: ")
 			}
-		}
-		if l == "BONUS" {
-			l = "0"
-		}
-	}
+			fmt.Scan(&bookid)
 
-	fmt.Println("last ep:", l)
-	fmt.Printf("\rGet page.")
-	pageLink := fmt.Sprintf("https://b-p.msub.kr/novelp/list/?p=all&last=%s&id=%d", l, bookid)
-	resp, _ = http.Get(pageLink)
-	var resResult Results
-	json.NewDecoder(resp.Body).Decode(&resResult)
-	fmt.Printf("\rGet page. %.0f/%.0f", resResult.P+1, resResult.P+1)
-	fmt.Print(aurora.Green(" [100%]\n\n"))
-
-	if len(resResult.Result) == 0 {
-		fmt.Println(aurora.BrightRed("No new episode"))
-		end()
-		return
-	}
-
-	result := make([]string, int(resResult.P)*20+300)
-
-	ch := make(chan Chan)
-
-	// 300개씩 끊어서 요청
-	jLimit := len(resResult.Result) / 300
-	for j := 0; j <= jLimit; j++ {
-		// 회차 = j * 300 + i
-
-		// 출력: [${j} of ${jLimit}] ${i} of rest
-		left := len(resResult.Result) - j*300
-		if left > 300 {
-			left = 300
-		}
-
-		// for i := range resResult.Result {
-		for i := 0; i < left; i++ {
-			if i%50 == 0 {
-				time.Sleep(time.Second / 2)
+			if useColors {
+				fmt.Print(aurora.BrightCyan("\rloading book info..."))
+			} else {
+				fmt.Print("\rloading book info...")
 			}
-			fmt.Printf("\r[%d of %d] Requesting %d/%d", j+1, jLimit+1, i+1, left)
-			go getEp(LOGINKEY, &resResult.Result[i+j*300], resResult.Last, j*300+i, ch, 1)
-			time.Sleep(time.Second / 30) // 30 req/s
+
+			resp, _ = http.Get("https://b-p.msub.kr/novelp/info/?id=" + strconv.Itoa(bookid))
+			json.NewDecoder(resp.Body).Decode(&res)
+
+			if res["err"] != nil {
+				if useColors {
+					fmt.Print(aurora.BrightRed("\rError:"), aurora.BrightRed(res["err"]))
+				} else {
+					fmt.Print("\rError:", res["err"])
+				}
+				fmt.Println()
+				continue
+			}
+
+			info := res["result"].(map[string]interface{})
+			title = info["title"].(string)
+			title = strings.ReplaceAll(title, "/", "／")
+			title = strings.ReplaceAll(title, "\\", "＼")
+			title = strings.ReplaceAll(title, ":", "：")
+			title = strings.ReplaceAll(title, "*", "＊")
+			title = strings.ReplaceAll(title, "?", "？")
+			title = strings.ReplaceAll(title, "\"", "＂")
+			title = strings.ReplaceAll(title, "<", "＜")
+			title = strings.ReplaceAll(title, ">", "＞")
+			title = strings.ReplaceAll(title, "|", "｜")
+			author = info["author"].(string)
+
+			if setting["cmd.check_with_yn"].(bool) {
+				if useColors {
+					fmt.Printf("\r[%s - %s] is right? (y/n): ", aurora.Cyan(title), aurora.BrightGreen(author))
+				} else {
+					fmt.Printf("\r[%s - %s] is right? (y/n): ", title, author)
+				}
+
+				var yn string
+				fmt.Scan(&yn)
+				if !strings.Contains(yn, "y") && !strings.Contains(yn, "Y") {
+					fmt.Println()
+				} else {
+					break
+				}
+			} else {
+				if useColors {
+					fmt.Printf("\rDownloading [%s - %s]...", aurora.Cyan(title), aurora.BrightGreen(author))
+				} else {
+					fmt.Printf("\rDownloading [%s - %s]...", title, author)
+				}
+			}
+
 		}
+
 		fmt.Println()
 
-		for a := 0; a < left; a++ {
-			result_ := <-ch
-
-			fmt.Printf("\r[%d of %d] %d/%d", j+1, jLimit+1, a+1, left)
-
-			result[result_.Index] = result_.Result
+		// read /result/{title} file
+		d, _ := os.ReadFile("./result/" + title + ".txt")
+		l := "0"
+		if string(d) != "" {
+			arr := strings.Split(string(d), "\n")
+			for _, v := range arr {
+				// if v startsWith("[") and contains "화]"
+				if strings.HasPrefix(v, "[") && strings.Contains(v, "화]") {
+					l = v[1:strings.Index(v, "화]")]
+				}
+			}
+			if l == "BONUS" {
+				l = "0"
+			}
 		}
 
-		fmt.Print(aurora.Green(" Done!\n\n"))
+		fmt.Println("last ep:", l)
+		fmt.Printf("\rGet page.")
+		pageLink := fmt.Sprintf("https://b-p.msub.kr/novelp/list/?p=all&last=%s&id=%d", l, bookid)
+		resp, _ = http.Get(pageLink)
+		var resResult Results
+		json.NewDecoder(resp.Body).Decode(&resResult)
+		fmt.Printf("\rGet page. %.0f/%.0f", resResult.P+1, resResult.P+1)
+		if useColors {
+			fmt.Print(aurora.Green(" [100%]\n\n"))
+		} else {
+			fmt.Print(" [100%]\n\n")
+		}
 
-		if len(resResult.Result) > 300 && left == 300 {
-			fmt.Print("\rResting 5 sec...")
-			time.Sleep(time.Second * 3)
+		if len(resResult.Result) == 0 {
+			if useColors {
+				fmt.Println(aurora.BrightRed("No new episode"))
+			} else {
+				fmt.Println("No new episode")
+			}
+			end()
+			return
+		}
+
+		result := make([]string, int(resResult.P)*20+300)
+
+		ch := make(chan Chan)
+
+		// 300개씩 끊어서 요청
+		jLimit := len(resResult.Result) / 300
+		for j := 0; j <= jLimit; j++ {
+			// 회차 = j * 300 + i
+
+			// 출력: [${j} of ${jLimit}] ${i} of rest
+			left := len(resResult.Result) - j*300
+			if left > 300 {
+				left = 300
+			}
+
+			// for i := range resResult.Result {
+			for i := 0; i < left; i++ {
+				if i%50 == 0 {
+					time.Sleep(time.Second / 2)
+				}
+				fmt.Printf("\r[%d of %d] Requesting %d/%d", j+1, jLimit+1, i+1, left)
+				go getEp(LOGINKEY, &resResult.Result[i+j*300], resResult.Last, j*300+i, ch, 1)
+				time.Sleep(time.Second / 30) // 30 req/s
+			}
+			fmt.Println()
+
+			for a := 0; a < left; a++ {
+				result_ := <-ch
+
+				fmt.Printf("\r[%d of %d] %d/%d", j+1, jLimit+1, a+1, left)
+
+				result[result_.Index] = result_.Result
+			}
+
+			if useColors {
+				fmt.Print(aurora.Green(" Done!\n\n"))
+			} else {
+				fmt.Print(" Done!\n\n")
+			}
+
+			if len(resResult.Result) > 300 && left == 300 {
+				fmt.Print("\rResting 5 sec...")
+				time.Sleep(time.Second * 3)
+			}
+		}
+
+		dirName := setting["result.directory_name"].(string)
+		if _, err := os.Stat(dirName); os.IsNotExist(err) {
+			if useColors {
+				fmt.Print(aurora.BrightRed("\rresult dir does not exist"))
+				os.Mkdir(dirName, 0755)
+				fmt.Println(aurora.BrightGreen("\rresult directory created"))
+			} else {
+				fmt.Print("\rresult dir does not exist")
+				os.Mkdir(dirName, 0755)
+				fmt.Println("\r" + dirName + "directory created")
+			}
+		}
+
+		// fileName = setting["result.file_name"].(string) .replace("${title}", title).replace("${author}", author)
+		fileName := setting["result.file_name"].(string)
+		fileName = strings.ReplaceAll(fileName, "${title}", title)
+		fileName = strings.ReplaceAll(fileName, "${author}", author)
+
+		if resResult.Cont {
+			os.WriteFile(dirName+"/"+fileName, []byte(string(d)+space+strings.TrimSpace(strings.Join(result, space))), 0644)
+		} else {
+			os.WriteFile(dirName+"/"+fileName, []byte(strings.TrimSpace(strings.Join(result, space))), 0644)
+		}
+
+		if useColors {
+			fmt.Println(aurora.Green("\n\nDone! check ./result/" + title + ".txt"))
+		} else {
+			fmt.Println("\n\nDone! check ./result/" + title + ".txt")
+		}
+
+		if setting["cmd.exit_when_finish"].(bool) {
+			break
 		}
 	}
-
-	if _, err := os.Stat("result"); os.IsNotExist(err) {
-		fmt.Print(aurora.BrightRed("\rresult dir does not exist"))
-		os.Mkdir("result", 0755)
-		fmt.Println(aurora.BrightGreen("\rresult directory created"))
-	}
-
-	if resResult.Cont {
-		os.WriteFile("result/"+title+".txt", []byte(string(d)+space+strings.TrimSpace(strings.Join(result, space))), 0644)
-	} else {
-		os.WriteFile("result/"+title+".txt", []byte(strings.TrimSpace(strings.Join(result, space))), 0644)
-	}
-
-	fmt.Println(aurora.Green("\n\nDone! check ./result/" + title + ".txt"))
 
 	end()
 }
 
 func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, tried int) {
-	if tried == 6 { // 5트까지
+	if tried == setting["cmd.max_try_per_episode"].(int)+1 {
 		ch <- Chan{"[" + page.Ep + "] " + page.Title + "\n\n\n\n\nError: 소설 정보를 불러올 수 없음", i}
 		return
 	}
@@ -283,12 +389,16 @@ func getEp(LOGINKEY string, page *Result, max float64, i int, ch chan Chan, trie
 	str := strings.Join(arr, "")
 
 	str = regexp.MustCompile(`src="([^"]+)"`).ReplaceAllStringFunc(str, func(s string) string {
+		if !setting["result.image_display"].(bool) {
+			return ""
+		}
 		s = strings.Replace(s, "src=\"", "", 1)
 		s = strings.Replace(s, "\"", "", 1)
+		imgFormat := setting["result.image_format"].(string)
 		if strings.HasPrefix(s, "http") {
-			return ">[이미지: " + s + "]<"
+			return strings.Replace(imgFormat, "${link}", s, 1)
 		} else {
-			return ">[이미지: http:" + s + "]<"
+			return strings.Replace(imgFormat, "${link}", "http:"+s, 1)
 		}
 	})
 	str = strings.ReplaceAll(str, "커버보기", "")
