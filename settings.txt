@@ -2,12 +2,13 @@
     "account.auto_login": true,
     "account.auto_login_file": "account.txt",
     "account.default_mail": "@gmail.com",
-    "cmd.use_colors": true,
     "cmd.check_with_yn": true,
     "cmd.exit_when_finish": true,
     "cmd.max_try_per_episode": 5,
-    "result.directory": "result",
+    "cmd.use_colors": true,
+    "result.image_display": true,
+    "result.image_format": "[이미지: ${link}]",
+    "result.directory_name": "result",
     "result.file_name": "${title}.txt",
-    "result.space_between_episodes": "\n\n\n\n\n\n\n\n\n\n",
-    "result.add_image_link": true
+    "result.space_between_episodes": "\n\n\n\n\n\n\n\n\n\n"
 }
