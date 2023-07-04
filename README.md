@@ -84,6 +84,7 @@ result/[소설명].txt 파일에서 확인하십숑
 
 > "result.space_between_episodes": String ("~~")
  - 회차 사이에 추가하는 문자?
+ - 문제가 좀 있어서 줄바꿈 기호 (\n)외엔 추가 안하는거 추천
  - Default: "\n\n\n\n\n\n\n\n\n\n"
 
 </div>

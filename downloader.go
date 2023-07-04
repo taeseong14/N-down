@@ -222,8 +222,14 @@ func main() {
 
 		fmt.Println()
 
-		// read /result/{title} file
-		d, _ := os.ReadFile("./result/" + title + ".txt")
+		// read /result/{titleformat} file
+		// fileName = setting["result.file_name"].(string) .replace("${title}", title).replace("${author}", author).replace("${id}", bookId)
+		fileName := setting["result.file_name"].(string)
+		fileName = strings.ReplaceAll(fileName, "${title}", title)
+		fileName = strings.ReplaceAll(fileName, "${author}", author)
+		fileName = strings.ReplaceAll(fileName, "${id}", strconv.Itoa(bookid))
+
+		d, _ := os.ReadFile(setting["result.directory_name"].(string) + "/" + fileName)
 		l := "0"
 		if string(d) != "" {
 			arr := strings.Split(string(d), "\n")
@@ -257,8 +263,11 @@ func main() {
 			} else {
 				fmt.Println("No new episode")
 			}
-			end()
-			return
+			if setting["cmd.exit_when_finish"].(bool) {
+				end()
+				return
+			}
+			continue
 		}
 
 		result := make([]string, int(resResult.P)*20+300)
@@ -319,11 +328,6 @@ func main() {
 				fmt.Println("\r" + dirName + "directory created")
 			}
 		}
-
-		// fileName = setting["result.file_name"].(string) .replace("${title}", title).replace("${author}", author)
-		fileName := setting["result.file_name"].(string)
-		fileName = strings.ReplaceAll(fileName, "${title}", title)
-		fileName = strings.ReplaceAll(fileName, "${author}", author)
 
 		if resResult.Cont {
 			os.WriteFile(dirName+"/"+fileName, []byte(string(d)+space+strings.TrimSpace(strings.Join(result, space))), 0644)
