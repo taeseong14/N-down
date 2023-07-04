@@ -60,7 +60,6 @@ func main() {
 		os.WriteFile("settings.txt", []byte(set), 0644)
 	}
 	setting = make(map[string]interface{})
-	fmt.Println("hi")
 	err := json.Unmarshal([]byte(set), &setting)
 	if err != nil {
 		fmt.Println(err)
@@ -71,6 +70,7 @@ func main() {
 	}
 	space = setting["result.space_between_episodes"].(string)
 	useColors = setting["cmd.use_colors"].(bool)
+
 	if useColors {
 		fmt.Println(aurora.Cyan("Novelpia Downloader by taeseong14").Bold(), aurora.Gray(12, "v"+version), aurora.BgWhite("[Github]").Black().Hyperlink("https://github.com/taeseong14/N-down"))
 		fmt.Print(aurora.BgIndex(16, "\n[Login]\n\n"))
@@ -120,7 +120,7 @@ func main() {
 			} else {
 				fmt.Println("\rNew Version Released: https://github.com/taeseong14/N-down/releases/tag/v" + res["v"].(string))
 			}
-			fmt.Print("\n\n")
+			fmt.Println()
 		} else {
 			if useColors {
 				fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
