@@ -34,6 +34,8 @@ result/[소설명].txt 파일에서 확인하십숑
 <summary style="font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 20px; color: #e3e182;">Settings Document</summary>
 <div>
 
+##### 참고) String 형식은 쌍따옴표(" ")를 붙이고, Number / Boolean 형식은 붙이지 않습니다.
+
 > "account.auto_login": Boolean (true | false)
  - 자동 로그인 여부. 꺼져있다면(false) account 파일도 생성되지 않습니다.
  - Default: true
@@ -45,6 +47,7 @@ result/[소설명].txt 파일에서 확인하십숑
 > "account.default_mail": String ("@~~")
  - 로그인시 id가 @를 포함하지 않을 때 자동으로 뒤에 붙이는 문자열. (예제의 초록색 두번째줄 참고)
  - Default: "@gmail.com"
+ - Ex) "@naver.com"
 
 > "cmd.check_with_yn": Boolean (true | false)
  - bookId를 입력했을때 맞냐고 체크하는 부분 추가
@@ -72,20 +75,23 @@ result/[소설명].txt 파일에서 확인하십숑
  - 이미지 링크 포멧 형식
  - query: ${link} 이미지 링크
  - Default: "[이미지: ${link}]" // -> [이미지: http://image.novelpia.com]
+ - Ex) "(img ${link})" // -> (img http:..)  참고) <태그>형식은 쓰면 짤림
 
 > "result.directory_name": String ("~~")
  - 결과 텍스트 파일들이 저장되는 폴더명, 혹은 루트
  - Default: "result" // -> ./result/~~.txt로 저장
+ - Ex) "다운로드_파일" // -> ./다운로드_파일/~~.txt
 
 > "result.file_name": String ("~~")
  - 결과 파일의 제목. txt파일로 저장되길 원하신다면 .txt를 붙이는걸 잊지 마세요.
- - query: ${title} 제목 | ${author} 작가
+ - query: ${id} bookId | ${title} 제목 | ${author} 작가
  - Default: "${title}.txt"
+ - Ex) "[${id}] ${title} - ${author}.txt" // -> [12345] 샌즈 - 파피루스.txt
 
 > "result.space_between_episodes": String ("~~")
  - 회차 사이에 추가하는 문자?
- - 문제가 좀 있어서 줄바꿈 기호 (\n)외엔 추가 안하는거 추천
- - Default: "\n\n\n\n\n\n\n\n\n\n"
+ - Default: "\n\n\n\n\n\n\n\n\n\n" (\n: 줄바꿈 문자(역슬래시+n))
+ - Ex) "\n\n\n\n\n####################\n\n\n\n\n" // -> 사이사이에 # 20개 추가
 
 </div>
 </details>

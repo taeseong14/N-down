@@ -27,7 +27,7 @@ type Results struct {
 	Result []Result `json:"result"`
 	Last   float64  `json:"last"`
 	P      float64  `json:"p"`
-	Cont   bool     `json:"cont"`
+	Cont   bool     `json:"cont"` // continue
 }
 
 type Result struct {
@@ -60,7 +60,15 @@ func main() {
 		os.WriteFile("settings.txt", []byte(set), 0644)
 	}
 	setting = make(map[string]interface{})
-	json.Unmarshal([]byte(set), &setting)
+	fmt.Println("hi")
+	err := json.Unmarshal([]byte(set), &setting)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("settings.txt 파일이 손상되었습니다. settings.txt 파일을 지운 후 다시 실행해주세요.")
+		fmt.Println("(참고: 따옴표나 쉼표 등 json 형식을 지켜주세요.)")
+		end()
+		return
+	}
 	space = setting["result.space_between_episodes"].(string)
 	useColors = setting["cmd.use_colors"].(bool)
 	if useColors {
@@ -112,21 +120,21 @@ func main() {
 			} else {
 				fmt.Println("\rNew Version Released: https://github.com/taeseong14/N-down/releases/tag/v" + res["v"].(string))
 			}
+			fmt.Print("\n\n")
+		} else {
+			if useColors {
+				fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
+			} else {
+				fmt.Println("\n\nError:", res["err"])
+			}
+			dat, _ := os.ReadFile(loginDataFile)
+			if dat != nil {
+				os.Remove(loginDataFile)
+				fmt.Println("\naccount file removed")
+			}
 			end()
 			return
 		}
-		if useColors {
-			fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
-		} else {
-			fmt.Println("\n\nError:", res["err"])
-		}
-		dat, _ := os.ReadFile(loginDataFile)
-		if dat != nil {
-			os.Remove(loginDataFile)
-			fmt.Println("\naccount file removed")
-		}
-		end()
-		return
 	}
 
 	LOGINKEY = res["result"].(string)
@@ -270,7 +278,11 @@ func main() {
 			continue
 		}
 
-		result := make([]string, int(resResult.P)*20+300)
+		result := make([]string, 0)
+		for i := 0; i < len(resResult.Result); i++ {
+			// append result: i as string
+			result = append(result, strconv.Itoa(i))
+		}
 
 		ch := make(chan Chan)
 
@@ -300,7 +312,6 @@ func main() {
 				result_ := <-ch
 
 				fmt.Printf("\r[%d of %d] %d/%d", j+1, jLimit+1, a+1, left)
-
 				result[result_.Index] = result_.Result
 			}
 
