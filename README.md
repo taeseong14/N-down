@@ -13,7 +13,7 @@
  * 1. 릴리즈([v0.1.2](https://github.com/taeseong14/N-down/releases/tag/v0.1.2))에서 "downloader.zip" 을 받는다
  * 2. 압축을 푼다
  * 3. downloader.exe 실행
- * 4. id(노벨피아 id만 가능, 구글 등 연동 ㄴㄴ) 와 password 입력
+ * 4. id(노벨피아 id(로그인할때 입력하는거)만 가능, 구글 등 연동은 ) 와 password 입력
  * 5. bookId 입력(소설번호: 178143 등)
 
 끝!
@@ -48,6 +48,11 @@ result/[소설명].txt 파일에서 확인하십숑
  - 로그인시 id가 @를 포함하지 않을 때 자동으로 뒤에 붙이는 문자열. (예제의 초록색 두번째줄 참고)
  - Default: "@gmail.com"
  - Ex) "@naver.com"
+
+> <span id="set-lwc" style="background: #e3e182 !important;">[new!]</span> "account.login_with_cookie": Boolean (true | false)
+ - 'account.auto_login'이 켜져있을 때: 로그인파일의 첫번째 줄을 로그인키로 끌어다 씀
+ - 꺼져있을 때 / account.txt가 존재하지 않을때: 로그인키를 인풋으로 받음
+ - 로그인키 받는법은 downloader.zip의 README.txt 확인
 
 > "cmd.check_with_yn": Boolean (true | false)
  - bookId를 입력했을때 맞냐고 체크하는 부분 추가
@@ -84,6 +89,7 @@ result/[소설명].txt 파일에서 확인하십숑
 
 > "result.file_name": String ("~~")
  - 결과 파일의 제목. txt파일로 저장되길 원하신다면 .txt를 붙이는걸 잊지 마세요.
+ - 주의) 이 형식에 따라 다운한 소설 파일을 읽고 이어받기를 하니 이거 바꾸면 첨부터 받아야함 (형식에 따라 파일들도 바꾸면 다시 또 되긴 하는)
  - query: ${id} bookId | ${title} 제목 | ${author} 작가
  - Default: "${title}.txt"
  - Ex) "[${id}] ${title} - ${author}.txt" // -> [12345] 샌즈 - 파피루스.txt

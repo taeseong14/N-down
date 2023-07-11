@@ -56,7 +56,7 @@ func main() {
 	dat, _ := os.ReadFile("settings.txt")
 	set := string(dat)
 	if dat == nil {
-		set = "{\r\n    \"account.auto_login\": true,\r\n    \"account.auto_login_file\": \"account.txt\",\r\n    \"account.default_mail\": \"@gmail.com\",\r\n    \"cmd.check_with_yn\": true,\r\n    \"cmd.exit_when_finish\": true,\r\n    \"cmd.max_try_per_episode\": 5,\r\n    \"cmd.use_colors\": true,\r\n    \"result.image_display\": true,\r\n    \"result.image_format\": \"[이미지: ${link}]\",\r\n    \"result.directory_name\": \"result\",\r\n    \"result.file_name\": \"${title}.txt\",\r\n    \"result.space_between_episodes\": \"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\"\r\n}"
+		set = "{\n    \"account.auto_login\": true,\n    \"account.auto_login_file\": \"account.txt\",\n    \"account.default_mail\": \"@gmail.com\",\n    \"account.login_with_cookie\": false,\n    \"cmd.check_with_yn\": true,\n    \"cmd.exit_when_finish\": true,\n    \"cmd.max_try_per_episode\": 5,\n    \"cmd.use_colors\": true,\n    \"result.image_display\": true,\n    \"result.image_format\": \"[이미지: ${link}]\",\n    \"result.directory_name\": \"result\",\n    \"result.file_name\": \"${title}.txt\",\n    \"result.space_between_episodes\": \"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\"\n}"
 		os.WriteFile("settings.txt", []byte(set), 0644)
 	}
 	setting = make(map[string]interface{})
@@ -68,6 +68,15 @@ func main() {
 		end()
 		return
 	}
+
+	loginDataFile := setting["account.auto_login_file"].(string)
+	if setting["account.auto_login"].(bool) {
+		dat, _ = os.ReadFile(loginDataFile)
+		if dat == nil {
+			os.WriteFile(loginDataFile, []byte(""), 0644)
+		}
+	}
+
 	space = setting["result.space_between_episodes"].(string)
 	useColors = setting["cmd.use_colors"].(bool)
 
@@ -79,70 +88,83 @@ func main() {
 		fmt.Print("\n[Login]\n\n")
 	}
 	var LOGINKEY, id, pw string
-	loginDataFile := setting["account.auto_login_file"].(string)
+	login_with_cookie := setting["account.login_with_cookie"]
+
 	dat, _ = os.ReadFile(loginDataFile)
-	if dat != nil && setting["account.auto_login"].(bool) {
+	if string(dat) != "" && setting["account.auto_login"].(bool) {
 		s := strings.Split(string(dat), "\n")
-		id, pw = s[0], s[1]
-		if useColors {
-			fmt.Print(aurora.BrightYellow("login with "), aurora.Cyan(id), "...\n")
+		if login_with_cookie == true {
+			LOGINKEY = s[0]
 		} else {
-			fmt.Print("login with ", id, "...\n")
-		}
-	} else {
-		fmt.Print("\nid: ")
-		fmt.Scan(&id)
-		if !strings.Contains(id, "@") {
-			id = id + setting["account.default_mail"].(string)
+			id, pw = s[0], s[1]
 			if useColors {
-				fmt.Println(aurora.Green("id: " + id))
+				fmt.Print(aurora.BrightYellow("login with "), aurora.Cyan(id), "...\n")
 			} else {
-				fmt.Println("id: " + id)
+				fmt.Print("login with ", id, "...\n")
 			}
 		}
-		fmt.Print("pw: ")
-		fmt.Scan(&pw)
-		fmt.Println()
+	} else {
+		if login_with_cookie == true {
+			fmt.Print("LOGINKEY: ")
+			fmt.Scan(&LOGINKEY)
+		} else {
+			fmt.Print("\nid: ")
+			fmt.Scan(&id)
+			if !strings.Contains(id, "@") {
+				id = id + setting["account.default_mail"].(string)
+				if useColors {
+					fmt.Println(aurora.Green("id: " + id))
+				} else {
+					fmt.Println("id: " + id)
+				}
+			}
+			fmt.Print("pw: ")
+			fmt.Scan(&pw)
+			fmt.Println()
 
-		fmt.Print("\rlogin...")
+			fmt.Print("\rlogin...")
+		}
 	}
-
-	json_data, _ := json.Marshal(User{id, pw})
-	resp, _ := http.Post("https://b-p.msub.kr/novelp/login?v="+version, "application/json", bytes.NewBuffer(json_data))
 
 	var res map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&res)
 
-	if res["err"] != nil {
-		if res["err"].(string) == "New Version Released" {
-			if useColors {
-				fmt.Println(aurora.Yellow("\rNew Version Released:"), aurora.BgWhite(res["v"]).Black().Hyperlink("https://github.com/taeseong14/N-down/releases/tag/v"+res["v"].(string)))
+	if login_with_cookie == false {
+		json_data, _ := json.Marshal(User{id, pw})
+		resp, _ := http.Post("https://b-p.msub.kr/novelp/login?v="+version, "application/json", bytes.NewBuffer(json_data))
+
+		json.NewDecoder(resp.Body).Decode(&res)
+
+		if res["err"] != nil {
+			if res["err"].(string) == "New Version Released" {
+				if useColors {
+					fmt.Println(aurora.Yellow("\rNew Version Released:"), aurora.BgWhite(res["v"]).Black().Hyperlink("https://github.com/taeseong14/N-down/releases/tag/v"+res["v"].(string)))
+				} else {
+					fmt.Println("\rNew Version Released: https://github.com/taeseong14/N-down/releases/tag/v" + res["v"].(string))
+				}
+				fmt.Println()
 			} else {
-				fmt.Println("\rNew Version Released: https://github.com/taeseong14/N-down/releases/tag/v" + res["v"].(string))
+				if useColors {
+					fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
+				} else {
+					fmt.Println("\n\nError:", res["err"])
+				}
+				// dat, _ := os.ReadFile(loginDataFile)
+				// if dat != nil {
+				// 	os.Remove(loginDataFile)
+				// 	fmt.Println("\naccount file removed")
+				// }
+				end()
+				return
 			}
-			fmt.Println()
-		} else {
-			if useColors {
-				fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
-			} else {
-				fmt.Println("\n\nError:", res["err"])
-			}
-			dat, _ := os.ReadFile(loginDataFile)
-			if dat != nil {
-				os.Remove(loginDataFile)
-				fmt.Println("\naccount file removed")
-			}
-			end()
-			return
 		}
-	}
 
-	LOGINKEY = res["result"].(string)
+		LOGINKEY = res["result"].(string)
 
-	if useColors {
-		fmt.Println(aurora.BrightGreen("\rlogin success"))
-	} else {
-		fmt.Println("\rlogin success")
+		if useColors {
+			fmt.Println(aurora.BrightGreen("\rlogin success"))
+		} else {
+			fmt.Println("\rlogin success")
+		}
 	}
 
 	if setting["account.auto_login"].(bool) {
@@ -153,7 +175,11 @@ func main() {
 			} else {
 				fmt.Println("login data saved in " + loginDataFile)
 			}
-			os.WriteFile(loginDataFile, []byte(id+"\n"+pw), 0644)
+			if login_with_cookie == true {
+				os.WriteFile(loginDataFile, []byte(LOGINKEY), 0644)
+			} else {
+				os.WriteFile(loginDataFile, []byte(id+"\n"+pw), 0644)
+			}
 		}
 	}
 
@@ -177,7 +203,7 @@ func main() {
 				fmt.Print("\rloading book info...")
 			}
 
-			resp, _ = http.Get("https://b-p.msub.kr/novelp/info/?id=" + strconv.Itoa(bookid))
+			resp, _ := http.Get("https://b-p.msub.kr/novelp/info/?id=" + strconv.Itoa(bookid))
 			json.NewDecoder(resp.Body).Decode(&res)
 
 			if res["err"] != nil {
@@ -255,7 +281,7 @@ func main() {
 		fmt.Println("last ep:", l)
 		fmt.Printf("\rGet page.")
 		pageLink := fmt.Sprintf("https://b-p.msub.kr/novelp/list/?p=all&last=%s&id=%d", l, bookid)
-		resp, _ = http.Get(pageLink)
+		resp, _ := http.Get(pageLink)
 		var resResult Results
 		json.NewDecoder(resp.Body).Decode(&resResult)
 		fmt.Printf("\rGet page. %.0f/%.0f", resResult.P+1, resResult.P+1)
@@ -349,7 +375,7 @@ func main() {
 		if useColors {
 			fmt.Println(aurora.Green("\n\nDone! check ./result/" + title + ".txt"))
 		} else {
-			fmt.Println("\n\nDone! check ./result/" + title + ".txt")
+			fmt.Println("\n\nDone! check ./" + setting["result.directory_name"].(string) + "/" + fileName)
 		}
 
 		if setting["cmd.exit_when_finish"].(bool) {
