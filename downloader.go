@@ -22,6 +22,9 @@ type User struct {
 	Id string `json:"id"`
 	Pw string `json:"pw"`
 }
+type User2 struct {
+	LOGINKEY string `json:"LOGINKEY"`
+}
 
 type Results struct {
 	Result []Result `json:"result"`
@@ -169,7 +172,7 @@ func main() {
 
 	if setting["account.auto_login"].(bool) {
 		dat, _ = os.ReadFile(loginDataFile)
-		if dat == nil {
+		if string(dat) == "" {
 			if useColors {
 				fmt.Println(aurora.BrightBlue("login data saved in " + loginDataFile))
 			} else {

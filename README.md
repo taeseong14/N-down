@@ -49,7 +49,7 @@ result/[소설명].txt 파일에서 확인하십숑
  - Default: "@gmail.com"
  - Ex) "@naver.com"
 
-> <span id="set-lwc" style="background: #e3e182 !important;">[new!]</span> "account.login_with_cookie": Boolean (true | false)
+> [new!] "account.login_with_cookie": Boolean (true | false)
  - 'account.auto_login'이 켜져있을 때: 로그인파일의 첫번째 줄을 로그인키로 끌어다 씀
  - 꺼져있을 때 / account.txt가 존재하지 않을때: 로그인키를 인풋으로 받음
  - 로그인키 받는법은 downloader.zip의 README.txt 확인
