@@ -14,7 +14,7 @@ import (
 	"github.com/logrusorgru/aurora/v4"
 )
 
-const version string = "0.1.2"
+const version string = "0.1.3"
 
 var space string
 

@@ -10,10 +10,10 @@
 
 ### 사용법
 
- * 1. 릴리즈([v0.1.2](https://github.com/taeseong14/N-down/releases/tag/v0.1.2))에서 "downloader.zip" 을 받는다
+ * 1. 릴리즈([최신: v0.1.3](https://github.com/taeseong14/N-down/releases/tag/v0.1.3))에서 "downloader.zip" 을 받는다
  * 2. 압축을 푼다
  * 3. downloader.exe 실행
- * 4. id(노벨피아 id(로그인할때 입력하는거)만 가능, 구글 등 연동은 ) 와 password 입력
+ * 4. id[노벨피아 id(로그인할때 입력하는거)만 가능, 구글 등 연동은 downloader.zip의 README.txt - 주의사항#5 따라하기] 와 password 입력
  * 5. bookId 입력(소설번호: 178143 등)
 
 끝!
