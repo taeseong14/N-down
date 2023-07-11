@@ -168,6 +168,35 @@ func main() {
 		} else {
 			fmt.Println("\rlogin success")
 		}
+	} else {
+		json_data, _ := json.Marshal(User2{LOGINKEY})
+		resp, _ := http.Post("https://b-p.msub.kr/novelp/login?v="+version, "application/json", bytes.NewBuffer(json_data))
+
+		json.NewDecoder(resp.Body).Decode(&res)
+
+		if res["err"] != nil {
+			if res["err"].(string) == "New Version Released" {
+				if useColors {
+					fmt.Println(aurora.Yellow("\rNew Version Released:"), aurora.BgWhite(res["v"]).Black().Hyperlink("https://github.com/taeseong14/N-down/releases/tag/v"+res["v"].(string)))
+				} else {
+					fmt.Println("\rNew Version Released: https://github.com/taeseong14/N-down/releases/tag/v" + res["v"].(string))
+				}
+				fmt.Println()
+			} else {
+				if useColors {
+					fmt.Println(aurora.BrightRed("\n\nError:"), aurora.BrightRed(res["err"]))
+				} else {
+					fmt.Println("\n\nError:", res["err"])
+				}
+				// dat, _ := os.ReadFile(loginDataFile)
+				// if dat != nil {
+				// 	os.Remove(loginDataFile)
+				// 	fmt.Println("\naccount file removed")
+				// }
+				end()
+				return
+			}
+		}
 	}
 
 	if setting["account.auto_login"].(bool) {

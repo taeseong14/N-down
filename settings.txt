@@ -1,8 +1,8 @@
 {
-    "account.auto_login": false,
-    "account.auto_login_file": "account.txt",
+    "account.auto_login": true,
+    "account.auto_login_file": "acccount.txt",
     "account.default_mail": "@gmail.com",
-    "account.login_with_cookie": false,
+    "account.login_with_cookie": true,
     "cmd.check_with_yn": false,
     "cmd.exit_when_finish": false,
     "cmd.max_try_per_episode": 5,
